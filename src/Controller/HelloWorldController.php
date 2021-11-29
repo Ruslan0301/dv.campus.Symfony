@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -14,6 +16,7 @@ class HelloWorldController extends AbstractController
     public function index(): Response
     {
         return $this->render('hello_world/index.html.twig', [
+            'title'=> 'HelloSymfony',
             'controller_name' => 'HelloWorldController',
         ]);
     }
