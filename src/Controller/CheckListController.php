@@ -8,6 +8,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @Route("/check/list", name="check_list_")
+ */
 class CheckListController extends AbstractController
 {
     private array $categories = [
@@ -28,40 +31,58 @@ class CheckListController extends AbstractController
     ];
     private array $notes = [
         1 => [
+            'id' => 1,
             'title' => 'Some note 1',
-            'text' => 'Lorem ipsun 1'
+            'text' => 'Lorem ipsun 1',
+            'category_id' => 1
         ],
         2 => [
+            'id' => 2,
             'title' => 'Some note 2',
-            'text' => 'Lorem ipsun 2'
+            'text' => 'Lorem ipsun 2',
+            'category_id' => 1
         ],
         3 => [
+            'id' => 3,
             'title' => 'Some note 3',
-            'text' => 'Lorem ipsun 3'
+            'text' => 'Lorem ipsun 3',
+            'category_id' => 1
         ],
         4 => [
+            'id' => 4,
             'title' => 'Some note 4',
-            'text' => 'Lorem ipsun 4'
+            'text' => 'Lorem ipsun 4',
+            'category_id' => 2
         ],
         5 => [
+            'id' => 5,
             'title' => 'Some note 5',
-            'text' => 'Lorem ipsun 5'
+            'text' => 'Lorem ipsun 5',
+            'category_id' => 2
         ],
         6 => [
+            'id' => 6,
             'title' => 'Some note 6',
-            'text' => 'Lorem ipsun 6'
+            'text' => 'Lorem ipsun 6',
+            'category_id' => 2
         ],
         7 => [
+            'id' => 7,
             'title' => 'Some note 7',
-            'text' => 'Lorem ipsun 7'
+            'text' => 'Lorem ipsun 7',
+            'category_id' => 3
         ],
         8 => [
+            'id' => 8,
             'title' => 'Some note 8',
-            'text' => 'Lorem ipsun 8'
+            'text' => 'Lorem ipsun 8',
+            'category_id' => 3
         ],
         9 => [
+            'id' => 9,
             'title' => 'Some note 9',
-            'text' => 'Lorem ipsun 9'
+            'text' => 'Lorem ipsun 9',
+            'category_id' => 3
         ]
 
     ];
@@ -71,8 +92,8 @@ class CheckListController extends AbstractController
      */
     public function listAll(): Response
     {
-        $foo = false;
-        return $this->render('check_list/index.html.twig', [
+        //$foo = false;
+        return $this->render('check_list/list.html.twig', [
            'notes' => $this->notes,
         ]);
     }
@@ -82,23 +103,45 @@ class CheckListController extends AbstractController
      */
     public function listByCategory(string $categoryId): Response
     {
-        if(!isset($this->categories[(int)$categoryId])){
-          throw new Exception('You ask category that not exist');
-        }
-        $category =  $this->categories[(int)$categoryId] ?? null;
+        if (!isset($this->categories[(int) $categoryId])) {
+        throw new Exception('You ask for category that not exists');
+    }
 
-//        return $this->render('check_list/index.html.twig', [
-//            'controller_name' => 'CheckListController',
-//        ]);
+        $category = $this->categories[(int) $categoryId] ?? null;
+        $notesIds = $category['notes'];
+
+        $notes = array_filter($this->notes, function (array $note) use ($notesIds) {
+            return in_array($note['id'], $notesIds, true);
+        });
+
+        return $this->render('check_list/list.html.twig', [
+           'notes' => $notes
+       ]);
     }
 
     /**
-     * @Route("/check/list/{category_id}/{product_id}", name="check_list_get")
+     * @Route("/check/list/{categoryId}/{noteId}", name="check_list_get", requirements={"categoryId"}="\d+",requirements={"noteId"}="\d+")
      */
-    public function getAction(): Response
+    public function getAction(string $categoryId, string $noteId): Response
     {
-//        return $this->render('check_list/index.html.twig', [
-//            'controller_name' => 'CheckListController',
-//        ]);
+       if (!isset($this->categories[(int) $categoryId])) {
+       throw new Exception('You ask for category that not exists');
+    }
+
+        $category = $this->categories[(int) $categoryId] ?? null;
+        $notesIds = $category['notes'];
+
+        $notes = array_filter($this->notes, function (array $note) use ($notesIds) {
+            return in_array($note['id'], $notesIds, true);
+        });
+        if (!isset($notes[(int) $noteId])) {
+            throw new Exception('There is no note in selected category');
+        }
+
+        $note = $notes[(int) $noteId];
+
+        return $this->render('check_list/get.html.twig', [
+           'note' => $note
+       ]);
     }
 }
